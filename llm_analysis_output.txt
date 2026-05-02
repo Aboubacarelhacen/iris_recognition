@@ -1,0 +1,50 @@
+LLaMA 3.2 Tarafından Oluşturulan Akademik Analiz
+============================================================
+
+**BULGULAR (Results)**
+
+Iris tanıma sisteminin sonuçları aşağıdaki gibi sıralanmiştir:
+
+- Toplam Kişi Sayısı: 2000
+- Gerçek Çift Sayısı (Genuine Pairs): 89188
+- Sahte Çift Sayısı (Impostor Pairs): 89188
+- EER (Eşit Hata Oranı): %38.99
+- FAR (Yanlış Kabul Oranı): %34.10
+- FRR (Yanlış Reddetme Oranı): %43.89
+- AUC Skoru: 0.6572
+- Optimal Hamming Distance Eşiği: 0.46
+
+Bu sonuçlar, sistemin gerçek çiftler için hata oranını %38.99 olarak gösteriyor ve sahte çiftler için hata oranını %34.10 olarak gösteriyor. Hatta bu sonuçlar, sistemin performansı çok düşük olan bir durumla karşılaştırılmalı.
+
+**TARTIŞMA (Discussion)**
+
+Bu sonuçlar, iris tanıma sisteminin bazı yönlerinin daha iyileştirilmesi gerektiği yorumuna yol açıyor:
+
+- EER ve FAR değerleri çok yüksek olduğu için sistem, hatalı tanımı gerçek tanımın yanı sıra sahte tanımları da kabul edebilir. Bu durum, sistem performansı için endişe vericidir.
+- FRR değerleri ise systemin bazı gerçek çiftler için tanıyamadığını gösteriyor. Bu durum, sistemin performansı için endişe vericidir.
+- AUC skoru 0.6572 olarak gösteriliyor. Bu değer, sistemin performannya daha iyi olduğu yönünde yorumlanabilir.
+
+Ancak, bu sonuçlar sistemde bazı zayıf yönlerin وجودını da gösteriyor:
+
+- Sistem, hatalı tanımı gerçek ve sahte tanımlarla karşılaştırarak realizar geliyor. Bu durum, sistemin performance için endişe vericidir.
+- Sistem, bazı gerçek çiftler için tanıyamıyor. Bu durum, sistemin performance için endişe vericidir.
+
+**SONUÇ (Conclusion)**
+
+Iris tanıma sisteminin sonuçları, sistemin bazı yönlerinin daha iyileştirilmesi gerektiği yorumuna yol açıyor. Sistemin EER ve FAR değerleri çok yüksek olduğu için sistem, hatalı tanımı gerçek tanımların yanı sıra sahte tanımları da kabul edebilir. Sistemin FRR değerleri ise systemin bazı gerçek çiftler için tanıyamadığını gösteriyor.
+
+Sistemin performance için endişe vericidir ve daha iyi bir performansa ulaşmak için bazı iyileştirme gerekliliği vardır.
+
+**GELECEK ÇALIŞMALAR (Future Work)**
+
+Aşağıdaki maddeler sistemin iyileştirilmesi için öneriler sunuyor:
+
+1. **Hatalı Tanım Gerçnosti İyileştirme**: Sistem, hatalı tanımı gerçek tanımların yanı sıra sahte tanımları da kabul edebilir. Bu durum, sistem performansı için endişe vericidir. Therefore, future work should focus on improving the system's ability to distinguish between genuine and impostor pairs.
+
+2. **FRR Azaltma**: Sistem, bazı gerçek çiftler için tanıyamıyor. Bu durum, sistemin performance için endişe vericidir. Future work should aim at reducing FRR values by improving the system's ability to detect genuine pairs.
+
+3. **AUC Skoru Artırması**: Sistemin AUC skoru 0.6572 olarak gösteriliyor. Bu değer, sistemin performannya daha iyi olduğu yönünde yorumlanabilir. Future work should focus on increasing this score by optimizing the system's parameters and improving its accuracy.
+
+4. **Optimal Hamming Distance Eşiği Geliştirme**: Sistemin optimal hamming distance eşigi 0.46 olarak gösteriliyor. Bu değer, sistemin performannessini daha iyi bir şekilde衡lendirmek için önemli bir değerdir. Future work should focus on optimizing this value by improving the system's parameters and reducing its errors.
+
+Bu proposed improvements should help to enhance the performance of the iris recognition system.
