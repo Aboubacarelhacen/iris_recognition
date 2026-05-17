@@ -1,74 +1,224 @@
-# Iris Recognition System (Daugman's IrisCode)
+# 🔐 Iris Recognition System
 
-A complete iris recognition pipeline implemented in a single Jupyter Notebook,
-following the classic approach proposed by John Daugman.
+A complete, professional iris recognition pipeline implementing **John Daugman's IrisCode** algorithm — from raw eye images all the way to FAR/FRR/EER/AUC evaluation, with a Streamlit UI and an Ollama-powered analysis report.
 
-## Pipeline
+![Python](https://img.shields.io/badge/Python-3.9+-blue)
+![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green)
+![Streamlit](https://img.shields.io/badge/Streamlit-app-red)
+![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-1. **Segmentation** — detect the pupil and iris boundary using the Hough Transform.
-2. **Normalization** — unwrap the iris ring into a 64 × 512 rectangle (Daugman's rubber sheet model).
-3. **Feature Extraction** — encode texture with a bank of 2-D Gabor filters into a 2048-bit IrisCode, with eyelid occlusion masking.
-4. **Matching** — compare IrisCodes using rotation-tolerant masked Hamming Distance.
-5. **Evaluation** — compute FAR, FRR, EER and ROC/AUC over genuine vs impostor pairs.
+---
 
-## Dataset
+## ⚡ Quick Start (5 minutes)
 
-This project uses the **CASIA-Iris-Thousand** dataset (1000 subjects, ~20,000 images).
-Available on [Kaggle](https://www.kaggle.com/).
+The trained models ship with this repo, so you can run the dashboard immediately — **no training, no dataset download required** for the demo.
 
-After downloading, place or symlink the dataset so the folder structure looks like:
+```bash
+# 1. Clone
+git clone https://github.com/Aboubacarelhacen/iris_recognition.git
+cd iris_recognition
+
+# 2. Python deps (CPU-only torch is fine; the dashboard does inference)
+python3 -m venv venv
+source venv/bin/activate          # macOS / Linux
+# .\venv\Scripts\activate         # Windows
+pip install -r requirements.txt
+
+# 3. Node deps for the dashboard
+cd dashboard-reimagined-main
+npm install
+cd ..
+
+# 4. Run everything (backend on :8000 + dashboard on :5173)
+./scripts/dev.sh
+```
+
+Open **http://localhost:5173** — you'll see the dashboard with **999 subjects and 18 148 IrisCodes loaded**. You can browse subjects and verify two iris images right away.
+
+**To run the live verification** with the included sample subject IDs, you'll need some iris images. Grab any 2 from the [CASIA-Iris-Thousand dataset](https://www.kaggle.com/datasets/sondosaabed/casia-iris-thousand) or use the project's notebook to download a sample.
+
+> 📝 **Note**: the full CASIA-Iris-Thousand dataset (~530 MB) is *not* in the repo. You only need it if you want to **re-train** the models. For the dashboard demo, only the pre-trained `model/iris_model.pkl` + `model/cnn_iris.pt` are needed (already included).
+
+---
+
+## 🧠 Pipeline
 
 ```
-data/CASIA-IrisV1/
-├── 000/
-│   ├── L/
-│   │   ├── S5000L00.jpg
-│   │   └── ...
-│   └── R/
-│       ├── S5000R00.jpg
-│       └── ...
-├── 001/
-│   └── ...
-└── ...
+   raw eye image
+        │
+        ▼
+   CLAHE preprocessing
+        │
+        ▼
+   HoughCircles ──► (iris, pupil) boundaries
+        │
+        ▼
+   Rubber-sheet unwrap ──► 64 × 512 strip
+        │
+        ▼
+   Gabor filter bank (4 orientations, quadrature)
+        │
+        ▼
+   Binarize sign  ──► 2048-bit IrisCode
+        │
+        ▼
+   Rotation-tolerant Hamming Distance
+        │
+        ▼
+   Decision (HD < threshold ⇒ same person)
 ```
 
-The notebook auto-detects the L/R subfolder layout.
+---
 
-## Installation
+## 📁 Project structure
+
+```
+iris_recognition/
+├── iris_recognition.ipynb         # full pipeline notebook
+├── train_model.py                 # Daugman training script
+├── train_cnn.py                   # CNN training (local CPU/MPS)
+├── train_cnn_kaggle.ipynb         # CNN training (Kaggle GPU)
+├── app.py                         # Streamlit dashboard (legacy)
+│
+├── utils/                         # core library — shared by all entrypoints
+│   ├── segmentation.py            # Hough + CLAHE + rubber-sheet
+│   ├── iriscode.py                # Gabor encoding + Hamming distance
+│   ├── cnn_encoder.py             # ResNet18+ArcFace inference wrapper
+│   └── evaluation.py              # FAR/FRR/EER/AUC
+│
+├── backend/                       # FastAPI server (powers the React dashboard)
+│   └── main.py
+│
+├── dashboard-reimagined-main/     # TanStack Start + React 19 + shadcn/ui
+│   └── src/
+│       ├── routes/                # /, /verify, /subjects, /system
+│       └── lib/api.ts             # typed client for /api/*
+│
+├── scripts/dev.sh                 # one-command "backend + frontend" launcher
+│
+├── model/
+│   ├── iris_model.pkl   metrics.json        # Daugman (generated)
+│   └── cnn_iris.pt      cnn_metrics.json    # CNN (generated)
+│
+├── data/
+│   └── CASIA-Iris-Thousand/       # ← place the dataset here
+│
+├── llm_analysis_output.txt        # generated by /system page or notebook §10
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## ⚙️ Installation
 
 ```bash
 python -m venv venv
-source venv/bin/activate      # macOS/Linux
+source venv/bin/activate          # macOS / Linux
+# .\venv\Scripts\activate         # Windows
 pip install -r requirements.txt
 ```
 
-## Usage
+---
 
+## 📦 Dataset
+
+This project uses **CASIA-Iris-Thousand** (1000 subjects, ~20,000 images).
+Available on [Kaggle](https://www.kaggle.com/) or via the CASIA biometrics portal.
+
+After downloading, extract so the structure looks like:
+
+```
+data/CASIA-Iris-Thousand/
+├── 000/
+│   ├── L/  S5000L00.jpg ...
+│   └── R/  S5000R00.jpg ...
+├── 001/
+└── ...
+```
+
+Every image under each subject folder is picked up recursively, regardless of L/R sub-organisation.
+
+---
+
+## ▶️ Usage
+
+### A. The React dashboard (recommended)
+
+The flagship UI: a TanStack Start / React 19 / shadcn dashboard backed by a FastAPI server that wraps the iris pipeline.
+
+```bash
+# 1. Train both models (one-time)
+python train_model.py                           # Daugman
+python train_cnn.py                             # CNN (or use Kaggle notebook)
+
+# 2. One-command launch (backend on :8000 + dashboard on :5173)
+./scripts/dev.sh
+```
+
+Then open **http://localhost:5173**.
+
+Four pages:
+| Route | What it shows |
+|---|---|
+| `/`         | KPI tiles (Daugman vs CNN EER/AUC), top consistent subjects bar chart, quality buckets |
+| `/verify`   | Upload two iris images, choose matcher (Daugman / CNN / Both), see decision + Hamming/cosine score + iris-strip and bit-code previews |
+| `/subjects` | Browse all 1000 subjects, filter by ID, sort by consistency/sample count |
+| `/system`   | Algorithm walkthrough, CNN training curve, Turkish LLM analysis (regenerate via Ollama) |
+
+If you'd rather run them separately:
+```bash
+# terminal 1
+uvicorn backend.main:app --reload --port 8000
+# terminal 2
+cd dashboard-reimagined-main && npm install && npm run dev
+```
+
+### B. Streamlit (legacy / quick demo)
+```bash
+streamlit run app.py
+```
+Same four pages as the React dashboard, simpler look.
+
+### C. Notebook (for inspection / debugging)
 ```bash
 jupyter notebook iris_recognition.ipynb
 ```
 
-Run all cells top to bottom (`Kernel → Restart & Run All`).
-Set `MAX_SUBJECTS = None` in the dataset cell to process the full 20,000-image dataset (~45 min),
-or keep it at `50` for a quick run (~2 min).
+### D. Optional — Ollama for the Turkish LLM analysis
+```bash
+ollama serve
+ollama pull llama3.2
+```
+Then click **Regenerate** on the React dashboard's `/system` page, or re-run Section 10 of the notebook.
 
-## Method
+---
 
-| Step | Technique |
-|---|---|
-| Segmentation | `cv2.HoughCircles` for pupil and iris boundary |
-| Normalization | Polar unwrap to 64 × 512 (rubber sheet) |
-| Occlusion mask | Eyelid rows excluded from encoding |
-| Encoding | 2-D Gabor filters (imaginary part) at 4 orientations → 2048-bit IrisCode |
-| Matching | Rotation-tolerant masked Hamming Distance (±8 column shifts) |
-| Evaluation | FAR/FRR sweep, EER, ROC + AUC |
+## 📊 Results
 
-## Output
+Replace the placeholders below with the values printed by Section 8 / `metrics.json`:
 
-- Segmentation overlay (pupil and iris circles on the eye image)
-- Normalized iris strip (64 × 512)
-- IrisCode visualized as a binary heatmap
-- Genuine vs impostor Hamming distance histograms
-- FAR/FRR curves with EER point
-- ROC curve with AUC
-- Results summary table
+| Metric           | Value      |
+|------------------|------------|
+| Subjects         | …          |
+| Encoded images   | …          |
+| EER              | …          |
+| FAR @ EER        | …          |
+| FRR @ EER        | …          |
+| AUC              | …          |
+| Decision thresh. | …          |
+
+---
+
+## 🛠 Tech Stack
+
+**Python pipeline**: OpenCV · NumPy · scikit-learn · PyTorch · torchvision · Matplotlib · tqdm
+**Web stack**: FastAPI · uvicorn · TanStack Start · TanStack Router · React 19 · shadcn/ui · Tailwind v4 · React Query
+**Misc**: Streamlit (legacy UI) · Jupyter (notebook) · Ollama (llama3.2 for the Turkish analysis)
+
+---
+
+## 📜 License
+
+MIT. Dataset usage is governed by CASIA's own license — do not redistribute the images.

@@ -6,3 +6,18 @@ scikit-learn
 matplotlib
 tqdm
 jupyter
+streamlit
+Pillow
+requests
+pandas
+joblib
+nbformat
+
+# Optional — needed only for the CNN branch (train_cnn.py / cnn_iris.pt)
+torch>=2.0
+torchvision>=0.15
+
+# Backend (FastAPI server for the React dashboard)
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9

@@ -1,4 +1,4 @@
-# Dataset — never commit the images
+# Dataset — never commit the images (~530 MB)
 data/
 
 # Python
@@ -14,8 +14,29 @@ env/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# macOS
+# Logs / temp artifacts
+train.log
+*.log
+model/strips_cache.npz
+
+# Node / frontend build
+node_modules/
+dist/
+build/
+.vite/
+.cache/
+.turbo/
+.wrangler/
+.output/
+
+# Editor / IDE
+.vscode/
+.idea/
+.cursor/
+
+# OS
 .DS_Store
+Thumbs.db
 
 # Anaconda
 anaconda_projects/
